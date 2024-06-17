@@ -8,37 +8,42 @@ import cors from "cors";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import path from "path";
+import { fileURLToPath } from "url"; // Added to handle __dirname with ES modules
 
 dotenv.config();
 
-//database config
+// Handle __dirname with ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Database config
 connectDB();
 
-//rest object
+// Rest object
 const app = express();
 
-//middlewares
-//var cors = require("cors");
+// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
+
+// Serve static files from the React app
 app.use(express.static(path.join(__dirname, "./client/build")));
 
-//routes
+// Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
 
-//rest api
-app.use("*", function (req, res) {
+// Catch-all handler to serve the React app for any route not handled by your API
+app.use("*", (req, res) => {
   res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 
-//PORT
+// PORT
 const PORT = process.env.PORT || 8080;
 
+// Listen on the defined PORT
 app.listen(PORT, () => {
-  console.log(
-    `Server is running on ${process.env.DEV_MODE} on port ${PORT}`.bgCyan.white
-  );
+  console.log(`Server is running in ${process.env.DEV_MODE} mode on port ${PORT}`.bgCyan.white);
 });
